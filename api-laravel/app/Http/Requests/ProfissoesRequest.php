@@ -3,6 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\Validation\Validator;
 
 class ProfissoesRequest extends FormRequest
 {
@@ -14,6 +17,16 @@ class ProfissoesRequest extends FormRequest
         return true;
     }
 
+    
+    protected function failedValidation(Validator $validator)
+    {
+        {
+            throw new HttpResponseException(response()->json([
+                'status' => false,
+                'erros' => $validator->errors(),
+            ], 422));
+        }
+    }
     /**
      * Get the validation rules that apply to the request.
      *
@@ -26,9 +39,20 @@ class ProfissoesRequest extends FormRequest
 
         return [
             'nome' => 'required',
-            'descricao' => '',
-            'salario' => '',
-            'empresa' => ''
+            'descricao' => 'required',
+            'salario' => 'required',
+            'empresa' => 'required'
         ];
     }
+
+    public function messages(): array 
+    {
+        return [
+            'nome.required' => 'Campo nome é obrigatório!',
+            'descricao.required' => 'Campo descrição é obrigatório!',
+            'salario.required' => 'Campo salario é obrigatório!',
+            'empresa.required' => 'Campo empresa é obrigatório!',
+        ];
+    }
+
 }
